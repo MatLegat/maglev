@@ -2,10 +2,10 @@
 set -e
 
 # Battery icons
-tmux set -g @batt_charged_icon "︎♡"
-tmux set -g @batt_charging_icon "︎♡"
-tmux set -g @batt_discharging_icon "︎♡"
-tmux set -g @batt_attached_icon "︎♡"
+# tmux set -g @batt_charged_icon "︎♡"
+# tmux set -g @batt_charging_icon "︎♡"
+# tmux set -g @batt_discharging_icon "︎♡"
+# tmux set -g @batt_attached_icon "︎♡"
 
 
 # BEGIN Fix CPU segment --------------------------------------------------------
@@ -56,8 +56,8 @@ apply_theme() {
     session_symbol=''
 
     # panes
-    pane_border_fg=colour8 # gray
-    pane_active_border_fg=colour4 # blue
+    pane_border_fg=colour243 # gray
+    pane_active_border_fg=colour69 # blue
 
     tmux set -g pane-border-style fg=$pane_border_fg \; set -g pane-active-border-style fg=$pane_active_border_fg
     #uncomment for fat borders
@@ -85,24 +85,24 @@ apply_theme() {
 
     # status line
     status_fg=colour253 # white
-    status_bg=colour0 # dark gray
+    status_bg=colour8 # dark gray
     tmux set -g status-style fg=$status_fg,bg=$status_bg
 
-    session_fg=colour16  # black
-    session_bg=colour11 # yellow
-    status_left="#[fg=$session_fg,bg=$session_bg,bold] ❐ #S #[fg=$session_bg,bg=$status_bg,nobold]$left_separator_black"
+    session_fg=colour236  # black
+    session_bg=colour245 # yellow
+    status_left="#[fg=$session_fg,bg=$session_bg] TMUX #[fg=$session_bg,bg=$status_bg,nobold]$left_separator_black"
     if [ x"`tmux -q -L tmux_theme_status_left_test -f /dev/null new-session -d \; show -g -v status-left \; kill-session`" = x"[#S] " ] ; then
         status_left="$status_left "
     fi
     tmux set -g status-left-length 32 \; set -g status-left "$status_left"
 
-    window_status_fg=colour8 # gray
-    window_status_bg=colour0 # dark gray
-    window_status_format="#I #W"
+    window_status_fg=colour245 # gray
+    window_status_bg=colour8 # dark gray
+    window_status_format=" #I $left_separator #W "
     tmux setw -g window-status-style fg=$window_status_fg,bg=$window_status_bg \; setw -g window-status-format "$window_status_format"
 
-    window_status_current_fg=colour16 # black
-    window_status_current_bg=colour4 # blue
+    window_status_current_fg=colour234 # black
+    window_status_current_bg=colour68 # blue
     window_status_current_format="#[fg=$window_status_bg,bg=$window_status_current_bg]$left_separator_black#[fg=$window_status_current_fg,bg=$window_status_current_bg,bold] #I $left_separator #W #[fg=$window_status_current_bg,bg=$status_bg,nobold]$left_separator_black"
     tmux setw -g window-status-current-format "$window_status_current_format"
     tmux set -g status-justify left
@@ -117,20 +117,20 @@ apply_theme() {
     window_status_bell_attr=blink,bold
     tmux setw -g window-status-bell-style fg=$window_status_bell_fg,bg=$window_status_bell_bg,$window_status_bell_attr
 
-    window_status_last_fg=colour4 # blue
+    window_status_last_fg=colour250 # blue
     window_status_last_attr=default
     tmux setw -g window-status-last-style $window_status_last_attr,fg=$window_status_last_fg
 
     battery_full_fg=colour160   # red
     battery_empty_fg=colour254  # white
     battery_bg=colour160        # black
-    time_date_fg=colour8      # gray
+    time_date_fg=colour250      # gray
     time_date_bg=colour0 # dark gray
     whoami_fg=colour254         # white
     whoami_bg=colour160         # red
     host_fg=colour16            # black
-    host_bg=colour254           # white
-    status_right="︎#[fg=$time_date_fg,nobold]$right_separator %R $right_separator %a %d %b #[fg=$host_bg]$right_separator_black#[fg=$host_fg,bg=$host_bg,bold] #{battery_icon} #{battery_percentage} $right_separator CPU #{cpu_percentage} "
+    host_bg=colour250           # white
+    status_right="︎#[fg=$time_date_fg,nobold]$right_separator %R $right_separator %a %d %b #[fg=$host_bg]$right_separator_black#[fg=$host_fg,bg=$host_bg] #{battery_icon} #{battery_percentage} $right_separator CPU #{cpu_percentage} "
     tmux set -g status-right-length 64 \; set -g status-right "$status_right"
 
     # clock
