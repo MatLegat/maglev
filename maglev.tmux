@@ -1,12 +1,28 @@
 #!/usr/bin/env bash
 set -e
 
-# Battery icons
-# tmux set -g @batt_charged_icon "︎♡"
-# tmux set -g @batt_charging_icon "︎♡"
-# tmux set -g @batt_discharging_icon "︎♡"
-# tmux set -g @batt_attached_icon "︎♡"
+PLUGINS=$(tmux show-options -g | grep @tpm_plugins)
 
+# Determine whether the tmux-cpu plugin should be installed
+SHOW_CPU=false
+if [[ $PLUGINS == *"tmux-cpu"* ]]; then
+    SHOW_CPU=true
+fi
+SHOW_BATTERY=false
+if [[ $PLUGINS == *"tmux-battery"* ]]; then
+    SHOW_BATTERY=true
+fi
+
+# Battery icons
+tmux set -g @batt_charged_icon "︎BAT"
+tmux set -g @batt_charging_icon "BAT"
+tmux set -g @batt_discharging_icon "︎BAT"
+tmux set -g @batt_attached_icon "︎BAT"
+
+# Optional prefix highlight plugin
+tmux set -g @prefix_highlight_show_copy_mode 'on'
+tmux set -g @prefix_highlight_copy_mode_attr 'fg=colour0,bg=colour11,bold' # default is 'fg=default,bg=yellow'
+tmux set -g @prefix_highlight_bg 'colour26'
 
 # BEGIN Fix CPU segment --------------------------------------------------------
 
@@ -47,7 +63,6 @@ main
 
 # END Fix CPU segment ----------------------------------------------------------
 
-
 apply_theme() {
     left_separator=''
     left_separator_black=''
@@ -85,12 +100,12 @@ apply_theme() {
 
     # status line
     status_fg=colour253 # white
-    status_bg=colour8 # dark gray
+    status_bg=colour8 # gray
     tmux set -g status-style fg=$status_fg,bg=$status_bg
 
     session_fg=colour236  # black
-    session_bg=colour245 # yellow
-    status_left="#[fg=$session_fg,bg=$session_bg] TMUX #[fg=$session_bg,bg=$status_bg,nobold]$left_separator_black"
+    session_bg=colour245 # light gray
+    status_left="#[fg=$session_fg,bg=$session_bg,bold] TMUX #[fg=$session_bg,bg=$status_bg,nobold]$left_separator_black"
     if [ x"`tmux -q -L tmux_theme_status_left_test -f /dev/null new-session -d \; show -g -v status-left \; kill-session`" = x"[#S] " ] ; then
         status_left="$status_left "
     fi
@@ -101,7 +116,7 @@ apply_theme() {
     window_status_format=" #I $left_separator #W "
     tmux setw -g window-status-style fg=$window_status_fg,bg=$window_status_bg \; setw -g window-status-format "$window_status_format"
 
-    window_status_current_fg=colour188 # black
+    window_status_current_fg=colour188 # white
     window_status_current_bg=colour25 # blue
     window_status_current_format="#[fg=$window_status_bg,bg=$window_status_current_bg]$left_separator_black#[fg=$window_status_current_fg,bg=$window_status_current_bg,bold] #I $left_separator #W #[fg=$window_status_current_bg,bg=$status_bg,nobold]$left_separator_black"
     tmux setw -g window-status-current-format "$window_status_current_format"
@@ -117,7 +132,7 @@ apply_theme() {
     window_status_bell_attr=blink,bold
     tmux setw -g window-status-bell-style fg=$window_status_bell_fg,bg=$window_status_bell_bg,$window_status_bell_attr
 
-    window_status_last_fg=colour250 # blue
+    window_status_last_fg=colour250 # gray
     window_status_last_attr=default
     tmux setw -g window-status-last-style $window_status_last_attr,fg=$window_status_last_fg
 
@@ -129,12 +144,27 @@ apply_theme() {
     whoami_fg=colour254         # white
     whoami_bg=colour160         # red
     host_fg=colour236            # black
-    host_bg=colour246           # white
-    # if [[ "#{battery_percentage}" == *"%"* ]] ; then
-        status_right="︎#[fg=$time_date_fg,nobold]$right_separator %R $right_separator %a %d %b #[fg=$host_bg]$right_separator_black#[fg=$host_fg,bg=$host_bg] #{battery_icon} #{battery_percentage} $right_separator CPU #{cpu_percentage} "
-    # else 
-        # status_right="︎#[fg=$time_date_fg,nobold]$right_separator %R $right_separator %a %d %b #[fg=$host_bg]$right_separator_black#[fg=$host_fg,bg=$host_bg]  CPU #{cpu_percentage} "
-    # fi
+    host_bg=colour246           # gray
+    status_right="︎#[fg=$time_date_fg,nobold]#{prefix_highlight} $right_separator %R $right_separator %a %d %b#[fg=$host_bg]"
+
+    # Only show solid separator if CPU or Battery are to be displayed
+    if [ "$SHOW_BATTERY" = true ] || [ "$SHOW_CPU" = true ]; then
+        status_right="$status_right $right_separator_black#[fg=$host_fg,bg=$host_bg]"
+    fi
+
+    if [ "$SHOW_BATTERY" = true ]; then
+        status_right="$status_right #{battery_icon} #{battery_percentage}"
+    fi
+
+    # Only add intermediate separator if both CPU and Batter are to be displayed
+    if [ "$SHOW_BATTERY" = true ] && [ "$SHOW_CPU" = true ]; then
+        status_right="$status_right $right_separator"
+    fi
+
+    if [ "$SHOW_CPU" = true ]; then
+        status_right="$status_right CPU #{cpu_percentage} "
+    fi
+
     tmux set -g status-right-length 64 \; set -g status-right "$status_right"
 
     # clock
