@@ -14,10 +14,10 @@ if [[ $PLUGINS == *"tmux-battery"* ]]; then
 fi
 
 # Battery icons
-tmux set -g @batt_charged_icon "︎BAT"
+tmux set -g @batt_charged_icon "BAT"
 tmux set -g @batt_charging_icon "BAT"
-tmux set -g @batt_discharging_icon "︎BAT"
-tmux set -g @batt_attached_icon "︎BAT"
+tmux set -g @batt_discharging_icon "BAT"
+tmux set -g @batt_attached_icon "BAT"
 
 # Optional prefix highlight plugin
 tmux set -g @prefix_highlight_show_copy_mode 'on'
@@ -111,14 +111,15 @@ apply_theme() {
     fi
     tmux set -g status-left-length 32 \; set -g status-left "$status_left"
 
-    window_status_fg=colour245 # gray
-    window_status_bg=colour8 # dark gray
-    window_status_format=" #I $left_separator #W "
+    window_status_fg=colour250 # gray
+    window_status_bg=colour239 # dark gray
+    window_status_format="#[fg=$status_bg,bg=$window_status_bg]$left_separator_black#[fg=$window_status_fg,bg=$window_status_bg] #I $left_separator #W #[fg=$window_status_bg,bg=$status_bg]$left_separator_black"
     tmux setw -g window-status-style fg=$window_status_fg,bg=$window_status_bg \; setw -g window-status-format "$window_status_format"
+    tmux setw -g window-status-separator ''
 
     window_status_current_fg=colour188 # white
     window_status_current_bg=colour25 # blue
-    window_status_current_format="#[fg=$window_status_bg,bg=$window_status_current_bg]$left_separator_black#[fg=$window_status_current_fg,bg=$window_status_current_bg,bold] #I $left_separator #W #[fg=$window_status_current_bg,bg=$status_bg,nobold]$left_separator_black"
+    window_status_current_format="#[fg=$status_bg,bg=$window_status_current_bg]$left_separator_black#[fg=$window_status_current_fg,bg=$window_status_current_bg,bold] #I $left_separator #W #[fg=$window_status_current_bg,bg=$status_bg,nobold]$left_separator_black"
     tmux setw -g window-status-current-format "$window_status_current_format"
     tmux set -g status-justify left
 
